@@ -1,3 +1,14 @@
+/* Debugger for 6502-based computer
+ * Connections:
+ * Clock - pin 2
+ * Reset - pin 3
+ * Read/Write - pin 4
+ * A0-A7 - Port B of expander on address 0x20
+ * A8-A15 - Port A of expander on address 0x20
+ * D0-D7 - Port B of expander on address 0x21
+ * 6522 Interface Adapter - Port A of expander on address 0x21
+ */
+
 #include <Wire.h>
 
 #define RX 1
@@ -18,6 +29,11 @@
 
 
 void setRegister(byte board, byte reg, byte data){
+  /* Transmits data via I2C
+   *  Board - slave address
+   *  Reg - target register
+   *  Data - value to be sent
+   */
   Wire.beginTransmission(board);
   Wire.write(reg);
   Wire.write(data);
@@ -26,6 +42,10 @@ void setRegister(byte board, byte reg, byte data){
 
 
 byte readRegister(byte board, byte reg){
+  /* Reads data from I2C
+   * Board - slave address
+   * Reg - target register
+   */
   Wire.beginTransmission(board);
   Wire.write(reg);
   Wire.requestFrom((int) board, 1);
@@ -36,6 +56,9 @@ byte readRegister(byte board, byte reg){
 
 
 void onClock(){
+  /* 
+   *  Reads data from both expanders and prints it to Serial 
+   */
   byte addrMS = readRegister(EXP1, GPIOA);
   byte addrLS = readRegister(EXP1, GPIOB);
   byte data = readRegister(EXP2, GPIOB);
